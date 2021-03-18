@@ -2,45 +2,25 @@ import React, { useState, useEffect, useRef } from "react";
 import trWords from "../wordsData/trWords";
 import "./App.css";
 import Timer from "./Timer";
-
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
-const mic = new SpeechRecognition();
-
-mic.continuous = true;
-mic.interimResults = true;
-mic.lang = "tr";
+import { makeUpperCase, makeLowerCase } from "./helpers.js";
 
 const App = () => {
-  const [isGameStart, setIsGameStart] = useState(false);
-  const [isListening, setIsListening] = useState(false);
+  const [isRoundStart, setIsRoundStart] = useState(false);
   const [speech, setSpeech] = useState("");
   const [selectedWord, setSelectedWord] = useState(null);
   const [isStop, setIsStop] = useState(false);
-  const [usedWords, setUsedWords] = useState([]);
-  // const test = useRef(selectedWord);
+  const [usedWords, setUsedWords] = useState(trWords);
+  const [wordsArray, setWordsArray] = useState(trWords);
 
-  useEffect(() => {
-    getRandomWord();
-  }, [isGameStart]);
+  const handleListen = (usedWords) => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const mic = new SpeechRecognition();
 
-  useEffect(() => {
-    handleListen();
-    isWordValid(usedWords, speech);
-  }, [isListening]);
-
-  const handleListen = () => {
-    if (isListening) {
-      mic.start();
-      mic.onend = () => {
-        setIsStop(true);
-      };
-    } else {
-      mic.stop();
-      mic.onend = () => {
-        console.log("Stopped Mic");
-      };
-    }
+    mic.continuous = true;
+    mic.interimResults = true;
+    mic.lang = "tr";
+    mic.start();
     mic.onstart = () => {
       console.log("Mics on");
     };
@@ -49,11 +29,18 @@ const App = () => {
         .map((result) => result[0])
         .map((result) => result.transcript)
         .join("");
-      if (transcript) {
-        setSpeech(transcript);
+
+      console.log(isStop);
+      if (event.results[0].isFinal) {
         mic.stop();
-        console.log(transcript);
       }
+      setIsStop(true);
+      setSpeech(transcript);
+      isWordValid(usedWords, transcript);
+      mic.onend = () => {
+        console.log("it ends");
+        mic.stop();
+      };
       mic.onerror = (event) => {
         console.log(event.error);
       };
@@ -61,50 +48,67 @@ const App = () => {
   };
 
   const startTheGame = () => {
-    setIsGameStart(!isGameStart); //true
-    setIsListening(!isListening); //true
+    setIsRoundStart(!isRoundStart); //true
+    const usedWords = getRandomWord();
+    handleListen(usedWords);
   };
 
   const getRandomWord = () => {
-    if (isGameStart) {
-      const randIndex = Math.floor(Math.random() * (trWords.length + 1));
-      const randWord = trWords[randIndex];
-      addSelectedWordToUsedWords(randWord);
-      setSelectedWord(randWord);
-    }
+    const randIndex = Math.floor(Math.random() * (trWords.length + 1));
+    let randWord = trWords[randIndex];
+    randWord = makeUpperCase(randWord);
+    const usedArray = addSelectedWordToUsedWords(randWord);
+    setSelectedWord(randWord);
+
+    let arr = [...wordsArray];
+    arr = arr.slice(arr.length / 2);
+    setWordsArray(arr);
+    // console.log(wordsArray);
+
+    return usedArray;
   };
 
   const handleStop = (isStop) => {
     setIsStop(isStop);
-    setIsListening(false);
   };
 
   const isWordValid = (usedWords, latterWord) => {
+    const formerWord = usedWords[usedWords.length - 1];
+    let lastLetterOfFormerWord = formerWord.charAt(formerWord.length - 1);
+    lastLetterOfFormerWord = makeLowerCase(lastLetterOfFormerWord);
+    let firstLetterOfLatterWord = latterWord.charAt(0);
+    firstLetterOfLatterWord = makeLowerCase(firstLetterOfLatterWord);
     const isPresent = usedWords.includes(latterWord);
-    // if (!isPresent) {
-    // startTheGame();
-    // } else console.log("game over");
+    const isLettersEqual = lastLetterOfFormerWord === firstLetterOfLatterWord;
+
+    console.log(latterWord);
+    console.log(lastLetterOfFormerWord);
+    console.log(firstLetterOfLatterWord);
+    if (!isPresent && isLettersEqual) {
+      console.log("game continue");
+      setIsRoundStart(false);
+      setIsStop(false);
+      startTheGame();
+    } else console.log("game over");
   };
 
   const addSelectedWordToUsedWords = (word) => {
-    // const selectedWord = trWords.indexOf(word);
     const array = [...usedWords, word];
     setUsedWords(array);
+    return array;
   };
 
   return (
     <div>
       <button onClick={startTheGame}>Start Game</button>
-
-      {/* <button onClick={() => setIsListening(!isListening)}>
-        Start Listening
-      </button> */}
-      {isGameStart && (
+      {isRoundStart && (
         <div>
-          <h1>{selectedWord}</h1>
+          <h1>Former Word: {selectedWord}</h1>
+          <h1>Latter Word: {speech}</h1>
           <Timer time={5} handleStop={handleStop} isStop={isStop} />
         </div>
       )}
+
       {isStop && <div>is stopped</div>}
     </div>
   );
