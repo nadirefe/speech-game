@@ -6,13 +6,11 @@ import { makeUpperCase, makeLowerCase } from "./helpers.js";
 
 const App = () => {
   const [isRoundStart, setIsRoundStart] = useState(false);
-  const [speech, setSpeech] = useState("");
-  const [selectedWord, setSelectedWord] = useState(null);
-  const [isStop, setIsStop] = useState(false);
-  const [usedWords, setUsedWords] = useState(trWords);
-  const [wordsArray, setWordsArray] = useState(trWords);
+  const [speech, setSpeech] = useState(""); //ok
+  const [selectedWord, setSelectedWord] = useState(null); //ok
+  const [isStop, setIsStop] = useState(false); //ok?
 
-  const handleListen = (usedWords) => {
+  const handleListen = (formerWord) => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const mic = new SpeechRecognition();
@@ -24,22 +22,24 @@ const App = () => {
     mic.onstart = () => {
       console.log("Mics on");
     };
+    setTimeout(() => {
+      mic.stop();
+    }, 5000);
     mic.onresult = (event) => {
       const transcript = Array.from(event.results)
         .map((result) => result[0])
         .map((result) => result.transcript)
         .join("");
 
-      console.log(isStop);
-      if (event.results[0].isFinal) {
-        mic.stop();
-      }
+      mic.stop();
       setIsStop(true);
-      setSpeech(transcript);
-      isWordValid(usedWords, transcript);
+
       mic.onend = () => {
         console.log("it ends");
         mic.stop();
+
+        setSpeech(transcript);
+        isWordValid(formerWord, transcript);
       };
       mic.onerror = (event) => {
         console.log(event.error);
@@ -49,23 +49,16 @@ const App = () => {
 
   const startTheGame = () => {
     setIsRoundStart(!isRoundStart); //true
-    const usedWords = getRandomWord();
-    handleListen(usedWords);
+    const formerWord = getRandomWord();
+    handleListen(formerWord);
   };
 
   const getRandomWord = () => {
     const randIndex = Math.floor(Math.random() * (trWords.length + 1));
     let randWord = trWords[randIndex];
     randWord = makeUpperCase(randWord);
-    const usedArray = addSelectedWordToUsedWords(randWord);
     setSelectedWord(randWord);
-
-    let arr = [...wordsArray];
-    arr = arr.slice(arr.length / 2);
-    setWordsArray(arr);
-    // console.log(wordsArray);
-
-    return usedArray;
+    return randWord;
   };
 
   const handleStop = (isStop) => {
@@ -88,14 +81,9 @@ const App = () => {
       console.log("game continue");
       setIsRoundStart(false);
       setIsStop(false);
+      // setSpeech(null);
       startTheGame();
     } else console.log("game over");
-  };
-
-  const addSelectedWordToUsedWords = (word) => {
-    const array = [...usedWords, word];
-    setUsedWords(array);
-    return array;
   };
 
   return (
@@ -105,7 +93,7 @@ const App = () => {
         <div>
           <h1>Former Word: {selectedWord}</h1>
           <h1>Latter Word: {speech}</h1>
-          <Timer time={5} handleStop={handleStop} isStop={isStop} />
+          <Timer time={5} handleStop={handleStop} />
         </div>
       )}
 
