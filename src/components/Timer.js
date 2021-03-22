@@ -4,6 +4,9 @@ const Timer = (props) => {
   const [timer, setTimer] = useState(props.time);
   useEffect(() => {
     if (timer === 0 || props.isStop) {
+      if (timer === 0) {
+        props.handleGameOver(true);
+      }
       props.handleStop(true);
       clearInterval(timer);
     } else {
