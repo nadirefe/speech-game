@@ -143,7 +143,7 @@ const App = () => {
     let lastLetterOfFormerWord = formerWord.charAt(formerWord.length - 1);
     lastLetterOfFormerWord = makeLowerCase(lastLetterOfFormerWord);
     let firstLetterOfLatterWord = latterWord.charAt(0);
-    firstLetterOfLatterWord = makeLowerCase(latterWord);
+    firstLetterOfLatterWord = makeLowerCase(firstLetterOfLatterWord);
     const areLettersEqual = lastLetterOfFormerWord === firstLetterOfLatterWord;
     return areLettersEqual;
   };
