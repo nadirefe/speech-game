@@ -143,7 +143,7 @@ const App = () => {
     let lastLetterOfFormerWord = formerWord.charAt(formerWord.length - 1);
     lastLetterOfFormerWord = makeLowerCase(lastLetterOfFormerWord);
     let firstLetterOfLatterWord = latterWord.charAt(0);
-    firstLetterOfLatterWord = makeLowerCase(firstLetterOfLatterWord);
+    firstLetterOfLatterWord = makeLowerCase(latterWord);
     const areLettersEqual = lastLetterOfFormerWord === firstLetterOfLatterWord;
     return areLettersEqual;
   };
@@ -164,7 +164,6 @@ const App = () => {
           {isGameOver && <h1 style={{ color: "red" }}>Game Over</h1>}
         </div>
       )}
-
       {isComputerThink && (
         <div>
           <h1>Your answer: {speech}</h1>
@@ -172,7 +171,6 @@ const App = () => {
           <h1>{wordsOfComputer}</h1>
         </div>
       )}
-
       {/* {isStop && <div>is stopped</div>} */}
     </div>
   );
