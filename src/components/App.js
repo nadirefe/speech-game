@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import trWords from "../wordsData/trWords";
 import "./App.css";
 import Timer from "./Timer";
@@ -19,19 +19,18 @@ const App = () => {
 
   useEffect(() => {
     //render random words
-    if (isComputerThink) {
-      setInterval(() => {
-        const randWord = getRandomValueFromArray(trWords);
-        setWordsOfComputer(randWord);
-      }, 100);
-    }
+    //not sure about if statement
+    const interval = setInterval(() => {
+      const randWord = getRandomValueFromArray(trWords);
+      setWordsOfComputer(randWord);
+    }, 100);
+    return () => clearInterval(interval);
   }, [isComputerThink]);
 
   const handleListen = (formerWord) => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const mic = new SpeechRecognition();
-
     mic.continuous = true;
     mic.interimResults = true;
     mic.lang = "tr";
@@ -56,7 +55,9 @@ const App = () => {
         console.log("it ends");
         mic.stop();
         setSpeech(transcript);
+        console.log(transcript);
         checkIsWordValid(formerWord, transcript);
+        addUsedWordsToSS(transcript);
       };
       mic.onerror = (event) => {
         console.log(event.error);
@@ -86,26 +87,35 @@ const App = () => {
       );
       const randWord = getRandomValueFromArray(correctWordArray);
       setSelectedWord(randWord);
+      addUsedWordsToSS(randWord);
       return randWord;
     } else {
       const randWord = getRandomValueFromArray(trWords);
       setSelectedWord(randWord);
+      sessionStorage.setItem("usedWords", JSON.stringify([randWord]));
       return randWord;
     }
+  };
+
+  const addUsedWordsToSS = (word) => {
+    let usedWordsArr = sessionStorage.getItem("usedWords");
+    usedWordsArr = JSON.parse(usedWordsArr);
+    usedWordsArr = [...usedWordsArr, word];
+    sessionStorage.setItem("usedWords", JSON.stringify(usedWordsArr));
   };
 
   const checkIsWordValid = (formerWord, latterWord) => {
     latterWord = makeLowerCase(latterWord);
     const isWordInList = checkIsWordInList(latterWord);
     const areLettersEqual = checkLettersAreEqual(formerWord, latterWord);
+    const isWordUsed = checkIsWordUsed(latterWord);
     // checking
     setTimeout(() => {
       // getting new word
-      if (areLettersEqual && isWordInList) {
+      if (areLettersEqual && isWordInList && !isWordUsed) {
         setIsRoundStart(false);
         setIsStop(false);
         setIsComputerThink(true);
-        console.log("game continue");
         setTimeout(() => {
           setSpeech("");
           startTheRound(latterWord);
@@ -115,6 +125,13 @@ const App = () => {
         setIsGameOver(true);
       }
     }, 1000);
+  };
+
+  const checkIsWordUsed = (word) => {
+    word = makeUpperCase(word);
+    const usedWordsArr = JSON.parse(sessionStorage.getItem("usedWords"));
+    const isWordUsed = usedWordsArr.includes(word);
+    return isWordUsed;
   };
 
   const checkIsWordInList = (word) => {
