@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+  timer: {
+    fontSize: "5em",
+    marginTop: "20%",
+    textAlign: "center",
+  },
+}));
 
 const Timer = (props) => {
+  const classes = useStyles();
   const [timer, setTimer] = useState(props.time);
   useEffect(() => {
     if (timer === 0 || props.isStop) {
@@ -19,11 +29,7 @@ const Timer = (props) => {
     }
   }, [timer]);
 
-  return (
-    <div>
-      <h1>{timer}</h1>
-    </div>
-  );
+  return <div className={classes.timer}>{timer}</div>;
 };
 
 export default Timer;

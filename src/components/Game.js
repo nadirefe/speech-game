@@ -5,11 +5,17 @@ import Timer from "./Timer";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
+import { addUsedWordsToSS } from "./SessionStorage";
+import {
+  checkIsWordUsed,
+  checkIsWordInList,
+  checkLettersAreEqual,
+} from "./Checkers.js";
 import {
   makeUpperCase,
   makeLowerCase,
   getRandomValueFromArray,
-} from "./helpers.js";
+} from "./Helpers.js";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -22,10 +28,19 @@ const useStyles = makeStyles((theme) => ({
     border: "2px solid white",
     borderRadius: 5,
     width: "70%",
+    height: "70%",
     margin: "0 auto",
     position: "relative",
     top: "20%",
     textAlign: "center",
+  },
+  wordBoard: {
+    fontSize: "1.5em",
+    textAlign: "left",
+    marginLeft: "10%",
+    "& span": {
+      color: "#0288d1",
+    },
   },
 }));
 
@@ -41,7 +56,6 @@ const App = () => {
 
   useEffect(() => {
     //render random words
-    //not sure about if statement
     const interval = setInterval(() => {
       const randWord = getRandomValueFromArray(trWords);
       setWordsOfComputer(randWord);
@@ -97,6 +111,8 @@ const App = () => {
     setIsGameOver(isGameOver);
   };
 
+  const startTheGame = () => {};
+
   const startTheRound = (word) => {
     setIsRoundStart(!isRoundStart); //true
     const formerWord = getRandomWord(word);
@@ -119,13 +135,6 @@ const App = () => {
       sessionStorage.setItem("usedWords", JSON.stringify([randWord]));
       return randWord;
     }
-  };
-
-  const addUsedWordsToSS = (word) => {
-    let usedWordsArr = sessionStorage.getItem("usedWords");
-    usedWordsArr = JSON.parse(usedWordsArr);
-    usedWordsArr = [...usedWordsArr, word];
-    sessionStorage.setItem("usedWords", JSON.stringify(usedWordsArr));
   };
 
   const checkIsWordValid = (formerWord, latterWord) => {
@@ -151,64 +160,61 @@ const App = () => {
     }, 1000);
   };
 
-  const checkIsWordUsed = (word) => {
-    word = makeUpperCase(word);
-    const usedWordsArr = JSON.parse(sessionStorage.getItem("usedWords"));
-    const isWordUsed = usedWordsArr.includes(word);
-    return isWordUsed;
-  };
-
-  const checkIsWordInList = (word) => {
-    const isWordInList = trWords.includes(word);
-    return isWordInList;
-  };
-
-  const checkLettersAreEqual = (formerWord, latterWord) => {
-    let lastLetterOfFormerWord = formerWord.charAt(formerWord.length - 1);
-    lastLetterOfFormerWord = makeLowerCase(lastLetterOfFormerWord);
-    let firstLetterOfLatterWord = latterWord.charAt(0);
-    firstLetterOfLatterWord = makeLowerCase(firstLetterOfLatterWord);
-    const areLettersEqual = lastLetterOfFormerWord === firstLetterOfLatterWord;
-    return areLettersEqual;
-  };
-
   return (
     <div className={classes.mainContainer}>
+      <div>
+        <Button
+          className={classes.button}
+          variant="contained"
+          color="primary"
+          onClick={startTheRound}
+        >
+          Start the Game
+        </Button>
+      </div>
       <Grid container>
-        <Grid item xs={7}>
-          <Button
-            className={classes.button}
-            variant="contained"
-            color="primary"
-            onClick={startTheRound}
-          >
-            Start the Game
-          </Button>
+        <Grid item xs={5}>
           {isRoundStart && (
-            <div>
-              <h1>Last Word: {selectedWord}</h1>
-              <h1>Answer: {speech}</h1>
-              <Timer
-                time={5}
-                handleGameOver={handleGameOver}
-                handleStop={handleStop}
-                isStop={isStop}
-              />
-              {isGameOver && <h1 style={{ color: "red" }}>Game Over</h1>}
+            <div className={classes.wordBoard}>
+              <h1>
+                <span>TOM: &nbsp;</span>
+                {selectedWord}
+              </h1>
+              <h1>
+                <span>YOU: &nbsp;</span>
+                {speech}
+              </h1>
             </div>
           )}
           {isComputerThink && (
-            <div>
-              <h1>Your answer: {speech}</h1>
-              <h1>Computer is thinking</h1>
-              <h1>{wordsOfComputer}</h1>
+            <div className={classes.wordBoard}>
+              <h1>
+                <span>YOU: &nbsp;</span>
+                {speech}
+              </h1>
+              <h1>
+                <span>TOM: &nbsp;</span>
+                {wordsOfComputer}
+              </h1>
             </div>
           )}
         </Grid>
+        <Grid item xs={2}>
+          {isRoundStart && (
+            <Timer
+              time={5}
+              handleGameOver={handleGameOver}
+              handleStop={handleStop}
+              isStop={isStop}
+            />
+          )}
+        </Grid>
         <Grid item xs={5}>
-          hello
+          <p>hello test test</p>
+          <p>hello</p>
         </Grid>
       </Grid>
+      <div>{isGameOver && <h1 style={{ color: "red" }}>Game Over</h1>}</div>
     </div>
   );
 };
