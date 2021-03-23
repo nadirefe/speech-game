@@ -1,8 +1,32 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./components/App";
+import Game from "./components/Game";
+import { createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/core/styles";
 
-ReactDOM.render(<App />, document.getElementById("root"));
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      light: "#ef9a9a",
+      main: "#ef5350",
+      dark: "#d32f2f",
+      contrastText: "#fff",
+    },
+    secondary: {
+      light: "#ff7961",
+      main: "#11111",
+      dark: "#ba000d",
+      contrastText: "#000",
+    },
+  },
+});
+
+ReactDOM.render(
+  <ThemeProvider theme={theme}>
+    <Game />
+  </ThemeProvider>,
+  document.getElementById("root")
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

@@ -13,7 +13,9 @@ const Timer = (props) => {
       const interval = setInterval(() => {
         setTimer((timer) => timer - 1);
       }, 1000);
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+      };
     }
   }, [timer]);
 

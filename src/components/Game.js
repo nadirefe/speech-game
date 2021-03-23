@@ -1,14 +1,36 @@
 import React, { useState, useEffect } from "react";
 import trWords from "../wordsData/trWords";
-import "./App.css";
+import "./Game.css";
 import Timer from "./Timer";
+import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
 import {
   makeUpperCase,
   makeLowerCase,
   getRandomValueFromArray,
 } from "./helpers.js";
 
+const useStyles = makeStyles((theme) => ({
+  button: {
+    width: 250,
+    height: 70,
+    fontSize: "1.5em",
+    margin: "50px auto",
+  },
+  mainContainer: {
+    border: "2px solid white",
+    borderRadius: 5,
+    width: "70%",
+    margin: "0 auto",
+    position: "relative",
+    top: "20%",
+    textAlign: "center",
+  },
+}));
+
 const App = () => {
+  const classes = useStyles();
   const [isRoundStart, setIsRoundStart] = useState(false);
   const [speech, setSpeech] = useState(""); //ok
   const [selectedWord, setSelectedWord] = useState(null); //ok
@@ -24,7 +46,9 @@ const App = () => {
       const randWord = getRandomValueFromArray(trWords);
       setWordsOfComputer(randWord);
     }, 100);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [isComputerThink]);
 
   const handleListen = (formerWord) => {
@@ -149,29 +173,42 @@ const App = () => {
   };
 
   return (
-    <div>
-      <button onClick={startTheRound}>Start Game</button>
-      {isRoundStart && (
-        <div>
-          <h1>Last Word: {selectedWord}</h1>
-          <h1>Answer: {speech}</h1>
-          <Timer
-            time={5}
-            handleGameOver={handleGameOver}
-            handleStop={handleStop}
-            isStop={isStop}
-          />
-          {isGameOver && <h1 style={{ color: "red" }}>Game Over</h1>}
-        </div>
-      )}
-      {isComputerThink && (
-        <div>
-          <h1>Your answer: {speech}</h1>
-          <h1>Computer is thinking</h1>
-          <h1>{wordsOfComputer}</h1>
-        </div>
-      )}
-      {/* {isStop && <div>is stopped</div>} */}
+    <div className={classes.mainContainer}>
+      <Grid container>
+        <Grid item xs={7}>
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            onClick={startTheRound}
+          >
+            Start the Game
+          </Button>
+          {isRoundStart && (
+            <div>
+              <h1>Last Word: {selectedWord}</h1>
+              <h1>Answer: {speech}</h1>
+              <Timer
+                time={5}
+                handleGameOver={handleGameOver}
+                handleStop={handleStop}
+                isStop={isStop}
+              />
+              {isGameOver && <h1 style={{ color: "red" }}>Game Over</h1>}
+            </div>
+          )}
+          {isComputerThink && (
+            <div>
+              <h1>Your answer: {speech}</h1>
+              <h1>Computer is thinking</h1>
+              <h1>{wordsOfComputer}</h1>
+            </div>
+          )}
+        </Grid>
+        <Grid item xs={5}>
+          hello
+        </Grid>
+      </Grid>
     </div>
   );
 };
