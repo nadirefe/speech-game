@@ -28,10 +28,10 @@ const useStyles = makeStyles((theme) => ({
     border: "2px solid white",
     borderRadius: 5,
     width: "70%",
-    height: "70%",
+    height: "80%",
     margin: "0 auto",
     position: "relative",
-    top: "20%",
+    top: "10%",
     textAlign: "center",
   },
   wordBoard: {
@@ -53,6 +53,8 @@ const App = () => {
   const [isGameOver, setIsGameOver] = useState(false); //ok
   const [isComputerThink, setIsComputerThink] = useState(false); //ok
   const [wordsOfComputer, setWordsOfComputer] = useState(null); //ok
+  const [isGameStart, setIsGameStart] = useState(false); //ok?
+  const [usedWords, setUsedWords] = useState([]);
 
   useEffect(() => {
     //render random words
@@ -65,6 +67,7 @@ const App = () => {
     };
   }, [isComputerThink]);
 
+  // OK
   const handleListen = (formerWord) => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -109,16 +112,23 @@ const App = () => {
 
   const handleGameOver = (isGameOver) => {
     setIsGameOver(isGameOver);
+    setIsGameStart(false);
   };
 
-  const startTheGame = () => {};
+  const startTheGame = () => {
+    setIsGameOver(false); //?
+    startTheRound();
+    setIsGameStart(true);
+  };
 
+  //OK
   const startTheRound = (word) => {
-    setIsRoundStart(!isRoundStart); //true
+    setIsRoundStart(true);
     const formerWord = getRandomWord(word);
     handleListen(formerWord);
   };
 
+  //OK
   const getRandomWord = (formerWord) => {
     //after first name
     if (typeof formerWord === "string") {
@@ -146,16 +156,20 @@ const App = () => {
     setTimeout(() => {
       // getting new word
       if (areLettersEqual && isWordInList && !isWordUsed) {
-        setIsRoundStart(false);
-        setIsStop(false);
-        setIsComputerThink(true);
+        setIsRoundStart(false); //ok
+        setIsStop(false); //ok
+        setIsComputerThink(true); //ok
         setTimeout(() => {
-          setSpeech("");
-          startTheRound(latterWord);
-          setIsComputerThink(false);
+          setSpeech(""); //ok
+          startTheRound(latterWord); //ok
+          setIsComputerThink(false); //ok
         }, 1000);
       } else {
-        setIsGameOver(true);
+        setIsGameOver(true); //ok
+        setIsStop(false); //ok
+        setIsRoundStart(false);
+        setIsGameStart(false);
+        setSpeech("");
       }
     }, 1000);
   };
@@ -167,13 +181,14 @@ const App = () => {
           className={classes.button}
           variant="contained"
           color="primary"
-          onClick={startTheRound}
+          onClick={startTheGame}
+          disabled={isGameStart}
         >
           Start the Game
         </Button>
       </div>
       <Grid container>
-        <Grid item xs={5}>
+        <Grid item xs={8}>
           {isRoundStart && (
             <div className={classes.wordBoard}>
               <h1>
@@ -199,7 +214,7 @@ const App = () => {
             </div>
           )}
         </Grid>
-        <Grid item xs={2}>
+        <Grid item xs={4}>
           {isRoundStart && (
             <Timer
               time={5}
@@ -209,12 +224,18 @@ const App = () => {
             />
           )}
         </Grid>
-        <Grid item xs={5}>
-          <p>hello test test</p>
-          <p>hello</p>
+        <Grid item xs={12}>
+          {isGameOver && (
+            <div>
+              <h1 style={{ color: "red" }}>Game Over</h1>
+              {JSON.parse(sessionStorage.getItem("usedWords")).map(
+                (item) => item
+              )}
+            </div>
+          )}
         </Grid>
       </Grid>
-      <div>{isGameOver && <h1 style={{ color: "red" }}>Game Over</h1>}</div>
+      <div></div>
     </div>
   );
 };
