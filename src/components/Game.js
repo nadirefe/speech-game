@@ -42,6 +42,14 @@ const useStyles = makeStyles((theme) => ({
       color: "#0288d1",
     },
   },
+  usedWords: {
+    textAlign: "left",
+    fontSize: "1.2em",
+    "& p": {
+      color: "#0288d1",
+      marginLeft: 35,
+    },
+  },
 }));
 
 const App = () => {
@@ -49,26 +57,35 @@ const App = () => {
   const [isRoundStart, setIsRoundStart] = useState(false);
   const [speech, setSpeech] = useState(""); //ok
   const [selectedWord, setSelectedWord] = useState(null); //ok
-  const [isStop, setIsStop] = useState(false); //ok?
   const [isGameOver, setIsGameOver] = useState(false); //ok
   const [isComputerThink, setIsComputerThink] = useState(false); //ok
   const [wordsOfComputer, setWordsOfComputer] = useState(null); //ok
   const [isGameStart, setIsGameStart] = useState(false); //ok?
-  const [usedWords, setUsedWords] = useState([]);
+  const [isYouWin, setIsYouWin] = useState(false);
 
   useEffect(() => {
     //render random words
-    const interval = setInterval(() => {
-      const randWord = getRandomValueFromArray(trWords);
-      setWordsOfComputer(randWord);
-    }, 100);
-    return () => {
-      clearInterval(interval);
-    };
+    if (isComputerThink) {
+      const interval = setInterval(() => {
+        const randWord = getRandomValueFromArray(trWords);
+        setWordsOfComputer(randWord);
+      }, 100);
+      return () => {
+        clearInterval(interval);
+      };
+    }
   }, [isComputerThink]);
 
   // OK
+  const computerSays = (word) => {
+    let synth = window.speechSynthesis;
+    const utterThis = new SpeechSynthesisUtterance(word);
+    utterThis.lang = "tr";
+    synth.speak(utterThis);
+  };
+
   const handleListen = (formerWord) => {
+    computerSays(formerWord);
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const mic = new SpeechRecognition();
@@ -89,7 +106,6 @@ const App = () => {
         .map((result) => result.transcript)
         .join("");
 
-      setIsStop(true);
       mic.stop();
 
       mic.onend = () => {
@@ -106,19 +122,17 @@ const App = () => {
     };
   };
 
-  const handleStop = (isStop) => {
-    setIsStop(isStop);
-  };
-
   const handleGameOver = (isGameOver) => {
     setIsGameOver(isGameOver);
-    setIsGameStart(false);
+    setIsGameStart(false); //button get active
+    setIsRoundStart(false);
   };
 
   const startTheGame = () => {
-    setIsGameOver(false); //?
-    startTheRound();
-    setIsGameStart(true);
+    setIsYouWin(false);
+    setIsGameOver(false); //remove Gameover at DOM.
+    startTheRound(); //start the game
+    setIsGameStart(true); //disable button
   };
 
   //OK
@@ -147,6 +161,17 @@ const App = () => {
     }
   };
 
+  const isComputerLost = () => {
+    const num = Math.random();
+    console.log(num);
+    //Cs lost
+    if (num < 0.3) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const checkIsWordValid = (formerWord, latterWord) => {
     latterWord = makeLowerCase(latterWord);
     const isWordInList = checkIsWordInList(latterWord);
@@ -155,21 +180,23 @@ const App = () => {
     // checking
     setTimeout(() => {
       // getting new word
+      setIsRoundStart(false);
       if (areLettersEqual && isWordInList && !isWordUsed) {
-        setIsRoundStart(false); //ok
-        setIsStop(false); //ok
         setIsComputerThink(true); //ok
         setTimeout(() => {
           setSpeech(""); //ok
-          startTheRound(latterWord); //ok
+          if (isComputerLost()) {
+            setIsYouWin(true);
+            setIsGameStart(false);
+          } else {
+            startTheRound(latterWord); //ok
+          }
           setIsComputerThink(false); //ok
         }, 1000);
       } else {
-        setIsGameOver(true); //ok
-        setIsStop(false); //ok
-        setIsRoundStart(false);
-        setIsGameStart(false);
-        setSpeech("");
+        setIsGameOver(true); //ok, DOM
+        setSpeech(""); // remove speech at DOM.
+        setIsGameStart(false); //active button
       }
     }, 1000);
   };
@@ -188,7 +215,7 @@ const App = () => {
         </Button>
       </div>
       <Grid container>
-        <Grid item xs={8}>
+        <Grid item xs={6}>
           {isRoundStart && (
             <div className={classes.wordBoard}>
               <h1>
@@ -213,29 +240,70 @@ const App = () => {
               </h1>
             </div>
           )}
-        </Grid>
-        <Grid item xs={4}>
-          {isRoundStart && (
-            <Timer
-              time={5}
-              handleGameOver={handleGameOver}
-              handleStop={handleStop}
-              isStop={isStop}
-            />
-          )}
-        </Grid>
-        <Grid item xs={12}>
           {isGameOver && (
+            <h1 style={{ color: "red", margin: "auto", fontSize: "3.5em" }}>
+              You Lost!
+            </h1>
+          )}
+          {isYouWin && (
             <div>
-              <h1 style={{ color: "red" }}>Game Over</h1>
-              {JSON.parse(sessionStorage.getItem("usedWords")).map(
-                (item) => item
-              )}
+              <h3>Tom couldn't find any name!</h3>
+              <h1
+                style={{ color: "#0288d1", margin: "auto", fontSize: "3.5em" }}
+              >
+                You Win!
+              </h1>
             </div>
           )}
         </Grid>
+        <Grid item xs={2}>
+          {isRoundStart && <Timer time={5} handleGameOver={handleGameOver} />}
+        </Grid>
+        <Grid
+          className={classes.usedWords}
+          item
+          container
+          xs={4}
+          direction="row"
+        >
+          {(isGameOver || isYouWin) && (
+            <>
+              <Grid item xs={6}>
+                <p>TOM</p>
+              </Grid>
+              <Grid item xs={6}>
+                <p>YOU</p>
+              </Grid>
+              {JSON.parse(sessionStorage.getItem("usedWords")).map(
+                (item, index) => {
+                  return (
+                    <>
+                      {index % 2 === 0 && (
+                        <Grid item xs={6}>
+                          <ul>
+                            <li>{item}</li>
+                          </ul>
+                        </Grid>
+                      )}
+                      {index % 2 === 1 && (
+                        <Grid
+                          style={{ position: "relative", top: 30 }}
+                          item
+                          xs={6}
+                        >
+                          <ul>
+                            <li>{item} </li>
+                          </ul>
+                        </Grid>
+                      )}
+                    </>
+                  );
+                }
+              )}
+            </>
+          )}
+        </Grid>
       </Grid>
-      <div></div>
     </div>
   );
 };
