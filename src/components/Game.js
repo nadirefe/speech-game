@@ -92,7 +92,10 @@ const App = () => {
     mic.continuous = true;
     mic.interimResults = true;
     mic.lang = "tr";
-    mic.start();
+    setTimeout(() => {
+      mic.start();
+    }, 500);
+    // mic.start();
     mic.onstart = () => {
       console.log("Mics on");
     };
@@ -105,14 +108,11 @@ const App = () => {
         .map((result) => result[0])
         .map((result) => result.transcript)
         .join("");
-
       mic.stop();
-
       mic.onend = () => {
         console.log("it ends");
         mic.stop();
         setSpeech(transcript);
-        console.log(transcript);
         checkIsWordValid(formerWord, transcript);
         addUsedWordsToSS(transcript);
       };
@@ -151,21 +151,19 @@ const App = () => {
       );
       const randWord = getRandomValueFromArray(correctWordArray);
       setSelectedWord(randWord);
-      addUsedWordsToSS(randWord);
       return randWord;
     } else {
       const randWord = getRandomValueFromArray(trWords);
       setSelectedWord(randWord);
-      sessionStorage.setItem("usedWords", JSON.stringify([randWord]));
+      sessionStorage.clear();
       return randWord;
     }
   };
 
-  const isComputerLost = () => {
+  const checkComputerLost = (word) => {
     const num = Math.random();
-    console.log(num);
-    //Cs lost
-    if (num < 0.3) {
+    const isWordUsed = checkIsWordUsed(word);
+    if (num < 0.3 || isWordUsed) {
       return true;
     } else {
       return false;
@@ -177,6 +175,9 @@ const App = () => {
     const isWordInList = checkIsWordInList(latterWord);
     const areLettersEqual = checkLettersAreEqual(formerWord, latterWord);
     const isWordUsed = checkIsWordUsed(latterWord);
+    const isComputerLost = checkComputerLost(formerWord);
+    const computerThinkingTime = Math.floor(Math.random() * 4000) + 1000;
+    addUsedWordsToSS(formerWord);
     // checking
     setTimeout(() => {
       // getting new word
@@ -185,20 +186,20 @@ const App = () => {
         setIsComputerThink(true); //ok
         setTimeout(() => {
           setSpeech(""); //ok
-          if (isComputerLost()) {
+          if (isComputerLost) {
             setIsYouWin(true);
             setIsGameStart(false);
           } else {
             startTheRound(latterWord); //ok
           }
           setIsComputerThink(false); //ok
-        }, 1000);
+        }, computerThinkingTime);
       } else {
         setIsGameOver(true); //ok, DOM
         setSpeech(""); // remove speech at DOM.
         setIsGameStart(false); //active button
       }
-    }, 1000);
+    }, 500);
   };
 
   return (
@@ -274,31 +275,39 @@ const App = () => {
               <Grid item xs={6}>
                 <p>YOU</p>
               </Grid>
-              {JSON.parse(sessionStorage.getItem("usedWords")).map(
-                (item, index) => {
-                  return (
-                    <>
-                      {index % 2 === 0 && (
-                        <Grid item xs={6}>
-                          <ul>
-                            <li>{item}</li>
-                          </ul>
-                        </Grid>
-                      )}
-                      {index % 2 === 1 && (
-                        <Grid
-                          style={{ position: "relative", top: 30 }}
-                          item
-                          xs={6}
-                        >
-                          <ul>
-                            <li>{item} </li>
-                          </ul>
-                        </Grid>
-                      )}
-                    </>
-                  );
-                }
+              {JSON.parse(sessionStorage.getItem("usedWords")) ? (
+                JSON.parse(sessionStorage.getItem("usedWords")).map(
+                  (item, index) => {
+                    return (
+                      <>
+                        {index % 2 === 0 && (
+                          <Grid item xs={6}>
+                            <ul>
+                              <li key={index}>{item}</li>
+                            </ul>
+                          </Grid>
+                        )}
+                        {index % 2 === 1 && (
+                          <Grid
+                            style={{ position: "relative", top: 30 }}
+                            item
+                            xs={6}
+                          >
+                            <ul>
+                              <li key={index}>{item} </li>
+                            </ul>
+                          </Grid>
+                        )}
+                      </>
+                    );
+                  }
+                )
+              ) : (
+                <Grid item xs={6}>
+                  <ul>
+                    <li>{selectedWord}</li>
+                  </ul>
+                </Grid>
               )}
             </>
           )}

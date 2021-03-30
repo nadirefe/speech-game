@@ -4,8 +4,12 @@ import trWords from "../wordsData/trWords";
 export const checkIsWordUsed = (word) => {
   word = makeUpperCase(word);
   const usedWordsArr = JSON.parse(sessionStorage.getItem("usedWords"));
-  const isWordUsed = usedWordsArr.includes(word);
-  return isWordUsed;
+  if (usedWordsArr) {
+    const isWordUsed = usedWordsArr.includes(word);
+    return isWordUsed;
+  } else {
+    return false;
+  }
 };
 
 export const checkIsWordInList = (word) => {
