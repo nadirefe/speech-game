@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const App = () => {
+const Game = () => {
   const classes = useStyles();
   const [isRoundStart, setIsRoundStart] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -295,4 +295,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Game;
