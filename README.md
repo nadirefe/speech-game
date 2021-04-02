@@ -12,7 +12,7 @@ In the project directory, you can run:
 
 ## Game Settings
 
-You can play this game with computer(Tom). Before you play, you can select the difficulty(Easy, Normal, Hard, Master). Each difficulty has different probabilities that computer responds your speech. At Easy mode, Tom can respond with 0.3 probability. Also Medium (0.2), Hard(0.1) and Master(0.05).
+You can play this game with computer(Tom). Before you play, you can select the difficulty(Easy, Normal, Hard, Master). Each difficulty has different probabilities that computer responds your speech. At Easy mode, Tom can respond with 0.7 probability. Also Medium (0.8), Hard(0.9) and Master(0.95).
 
 You can select language. You can play with this game in Turkish or English.
 
