@@ -8,7 +8,7 @@
 
 ## Demo
 
-Here is a working live demo : 
+Here is a working live demo : https://nadirefe.github.io/speech-game/
 
 Please preferably use Google Chrome.
 
