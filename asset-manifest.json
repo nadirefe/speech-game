@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/speech-game/static/css/main.3139fae5.chunk.css",
+    "main.js": "/speech-game/static/js/main.da25fede.chunk.js",
+    "main.js.map": "/speech-game/static/js/main.da25fede.chunk.js.map",
+    "runtime-main.js": "/speech-game/static/js/runtime-main.f68bb4fd.js",
+    "runtime-main.js.map": "/speech-game/static/js/runtime-main.f68bb4fd.js.map",
+    "static/js/2.cd1630f5.chunk.js": "/speech-game/static/js/2.cd1630f5.chunk.js",
+    "static/js/2.cd1630f5.chunk.js.map": "/speech-game/static/js/2.cd1630f5.chunk.js.map",
+    "index.html": "/speech-game/index.html",
+    "static/css/main.3139fae5.chunk.css.map": "/speech-game/static/css/main.3139fae5.chunk.css.map",
+    "static/js/2.cd1630f5.chunk.js.LICENSE.txt": "/speech-game/static/js/2.cd1630f5.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f68bb4fd.js",
+    "static/js/2.cd1630f5.chunk.js",
+    "static/css/main.3139fae5.chunk.css",
+    "static/js/main.da25fede.chunk.js"
+  ]
+}
