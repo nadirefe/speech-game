@@ -28,6 +28,8 @@ The default configuration is: Normal, Turkish and 8 seconds.
 
 Before the game starts, the browser asks you to enable your microphone.
 
+After Tom's name appear in the screen, you should start by saying name.
+
 ### Game Rules
 
 1. You have to say name that starts with the last letter of the name that Tom's said. Tom starts the game.
